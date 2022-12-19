@@ -12,6 +12,10 @@ import javax.swing.JPanel;
 
 // ブロック崩しのゲーム
 public class Breakout extends JPanel implements KeyListener {
+	/**
+	 * シリアル
+	 */
+	private static final long serialVersionUID = 1L;
 	// 画面の大きさ
 	private static final int SCREEN_WIDTH = 400;
 	private static final int SCREEN_HEIGHT = 600;
@@ -20,7 +24,7 @@ public class Breakout extends JPanel implements KeyListener {
 	private static final int BLOCK_WIDTH = 60;
 	private static final int BLOCK_HEIGHT = 20;
 	private Rectangle block = new Rectangle(100, 50, BLOCK_WIDTH, BLOCK_HEIGHT);
-//	private boolean blockExistence = true;
+	private boolean blockExistence = true;
 
 	// ボールを作成
 	private static final int BALL_RADIUS = 10;
@@ -38,8 +42,6 @@ public class Breakout extends JPanel implements KeyListener {
 	private int dy = 5;
 
 	public Breakout() {
-		// 省略
-
 		// キー入力を受け付けるように設定する
 		addKeyListener(this);
 	}
@@ -95,6 +97,11 @@ public class Breakout extends JPanel implements KeyListener {
 		if (ball.intersects(paddle)) {
 			dy = -dy;
 		}
+		// ボールがブロックに当たったときの反射処理
+		if (ball.intersects(block)) {
+			blockExistence = false;
+			dy = -dy;
+		}
 
 		// 画面を更新
 		repaint();
@@ -102,6 +109,7 @@ public class Breakout extends JPanel implements KeyListener {
 
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
+		// 動かすためにフォーカス
 		requestFocus();
 
 		// 画面を白で塗りつぶす
@@ -110,24 +118,22 @@ public class Breakout extends JPanel implements KeyListener {
 
 		// ブロックを描画
 		g.setColor(Color.BLACK);
-		g.fillRect(block.x, block.y, block.width, block.height);
-
+		if (blockExistence) {
+			g.fillRect(block.x, block.y, block.width, block.height);
+		}
 		// ボールを描画
 		g.fillOval(ball.x, ball.y, ball.width, ball.height);
 
 		// パドルを描画
 		g.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
+		// デバッグ用出力
+		System.out.println("----------------------------------------");
+		System.out.printf("block(x,y)=(%s,%s)\n", block.x, block.y);
+		System.out.printf("ball(x,y)=(%s,%s)\n", ball.x, ball.y);
 	}
 
+	@Override
 	public void keyPressed(KeyEvent e) {
-	}
-
-	// キーが離されたときの処理
-	public void keyReleased(KeyEvent e) {
-	}
-
-	// キーがタイプされたときの処理
-	public void keyTyped(KeyEvent e) {
 		int key = e.getKeyCode();
 
 		// 左矢印キーが押されたとき
@@ -140,5 +146,15 @@ public class Breakout extends JPanel implements KeyListener {
 			// 棒を右に移動する
 			paddle.x = Math.min(SCREEN_WIDTH - PADDLE_WIDTH, paddle.x + 10);
 		}
+	}
+
+	// キーが離されたときの処理
+	@Override
+	public void keyReleased(KeyEvent e) {
+	}
+
+	// キーがタイプされたときの処理
+	@Override
+	public void keyTyped(KeyEvent e) {
 	}
 }
