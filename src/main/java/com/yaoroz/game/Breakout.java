@@ -4,12 +4,14 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 // ブロック崩しのゲーム
-public class Breakout extends JPanel {
+public class Breakout extends JPanel implements KeyListener {
 	// 画面の大きさ
 	private static final int SCREEN_WIDTH = 400;
 	private static final int SCREEN_HEIGHT = 600;
@@ -18,6 +20,7 @@ public class Breakout extends JPanel {
 	private static final int BLOCK_WIDTH = 60;
 	private static final int BLOCK_HEIGHT = 20;
 	private Rectangle block = new Rectangle(100, 50, BLOCK_WIDTH, BLOCK_HEIGHT);
+//	private boolean blockExistence = true;
 
 	// ボールを作成
 	private static final int BALL_RADIUS = 10;
@@ -28,12 +31,18 @@ public class Breakout extends JPanel {
 	// パドルを作成
 	private static final int PADDLE_WIDTH = 60;
 	private static final int PADDLE_HEIGHT = 20;
-	private Rectangle paddle = new Rectangle(SCREEN_WIDTH / 2 - PADDLE_WIDTH / 2, SCREEN_HEIGHT - PADDLE_HEIGHT - 10,
-			PADDLE_WIDTH, PADDLE_HEIGHT);
+	private Rectangle paddle = new Rectangle(340, 520, PADDLE_WIDTH, PADDLE_HEIGHT);
 
 	// 移動量
 	private int dx = 5;
 	private int dy = 5;
+
+	public Breakout() {
+		// 省略
+
+		// キー入力を受け付けるように設定する
+		addKeyListener(this);
+	}
 
 	public static void main(String[] args) {
 		JFrame frame = new JFrame();
@@ -60,17 +69,27 @@ public class Breakout extends JPanel {
 	}
 
 	public void update() {
+
 		// ボールを移動
 		ballCenter.x += dx;
 		ballCenter.y += dy;
+		ball.x += dx;
+		ball.y += dy;
 
 		// ボールが左右の壁に当たったときの反射処理
 		if (ballCenter.x < BALL_RADIUS || ballCenter.x > SCREEN_WIDTH - BALL_RADIUS) {
 			dx = -dx;
 		}
+
 		// ボールが上の壁に当たったときの反射処理
 		if (ballCenter.y < BALL_RADIUS) {
 			dy = -dy;
+		}
+
+		// ボールが下の壁に当たったときの処理
+		if (ball.y > SCREEN_HEIGHT + BALL_RADIUS) {
+			// ゲームを終了する
+			System.exit(0);
 		}
 		// ボールがパドルに当たったときの反射処理
 		if (ball.intersects(paddle)) {
@@ -83,6 +102,7 @@ public class Breakout extends JPanel {
 
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
+		requestFocus();
 
 		// 画面を白で塗りつぶす
 		g.setColor(Color.WHITE);
@@ -97,5 +117,28 @@ public class Breakout extends JPanel {
 
 		// パドルを描画
 		g.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
+	}
+
+	public void keyPressed(KeyEvent e) {
+	}
+
+	// キーが離されたときの処理
+	public void keyReleased(KeyEvent e) {
+	}
+
+	// キーがタイプされたときの処理
+	public void keyTyped(KeyEvent e) {
+		int key = e.getKeyCode();
+
+		// 左矢印キーが押されたとき
+		if (key == KeyEvent.VK_LEFT) {
+			// 棒を左に移動する
+			paddle.x = Math.max(0, paddle.x - 10);
+		}
+		// 右矢印キーが押されたとき
+		if (key == KeyEvent.VK_RIGHT) {
+			// 棒を右に移動する
+			paddle.x = Math.min(SCREEN_WIDTH - PADDLE_WIDTH, paddle.x + 10);
+		}
 	}
 }
