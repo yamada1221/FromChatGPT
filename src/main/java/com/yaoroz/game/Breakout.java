@@ -1,6 +1,7 @@
 package com.yaoroz.game;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -9,151 +10,141 @@ import java.awt.event.KeyListener;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
-// ƒuƒƒbƒN•ö‚µ‚ÌƒQ[ƒ€
+// ãƒ–ãƒ­ãƒƒã‚¯å´©ã—ã®ã‚²ãƒ¼ãƒ 
 public class Breakout extends JPanel implements KeyListener {
 	/**
-	 * ƒVƒŠƒAƒ‹
+	 * ã‚·ãƒªã‚¢ãƒ«
 	 */
 	private static final long serialVersionUID = 1L;
-	// ‰æ–Ê‚Ì‘å‚«‚³
+	// ç”»é¢ã®å¤§ãã•
 	private static final int SCREEN_WIDTH = 400;
 	private static final int SCREEN_HEIGHT = 600;
 
-	// ƒuƒƒbƒN‚ğì¬
+	// ãƒ–ãƒ­ãƒƒã‚¯ã‚’ä½œæˆ
 	private static final int BLOCK_WIDTH = 60;
 	private static final int BLOCK_HEIGHT = 20;
 	private Rectangle block = new Rectangle(100, 50, BLOCK_WIDTH, BLOCK_HEIGHT);
 	private boolean blockExistence = true;
 
-	// ƒ{[ƒ‹‚ğì¬
+	// ãƒœãƒ¼ãƒ«ã‚’ä½œæˆ
 	private static final int BALL_RADIUS = 10;
 	private Point ballCenter = new Point(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
 	private Rectangle ball = new Rectangle(ballCenter.x - BALL_RADIUS, ballCenter.y - BALL_RADIUS, BALL_RADIUS * 2,
 			BALL_RADIUS * 2);
 
-	// ƒpƒhƒ‹‚ğì¬
+	// ãƒ‘ãƒ‰ãƒ«ã‚’ä½œæˆ
 	private static final int PADDLE_WIDTH = 60;
 	private static final int PADDLE_HEIGHT = 20;
 	private Rectangle paddle = new Rectangle(340, 520, PADDLE_WIDTH, PADDLE_HEIGHT);
 
-	// ˆÚ“®—Ê
+	// ç§»å‹•é‡
 	private int dx = 5;
 	private int dy = 5;
 
 	public Breakout() {
-		// ƒL[“ü—Í‚ğó‚¯•t‚¯‚é‚æ‚¤‚Éİ’è‚·‚é
+		// ã‚­ãƒ¼å…¥åŠ›ã‚’å—ã‘ä»˜ã‘ã‚‹ã‚ˆã†ã«è¨­å®šã™ã‚‹
 		addKeyListener(this);
+		setFocusable(true);
+		setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
 	}
 
 	public static void main(String[] args) {
-		JFrame frame = new JFrame();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setResizable(false);
-		frame.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-
-		Breakout game = new Breakout();
-		frame.add(game);
-
-		frame.setVisible(true);
-
-		// ƒQ[ƒ€‚ÌƒƒCƒ“ƒ‹[ƒv
-		while (true) {
-			game.update();
-			game.repaint();
-
-			try {
-				Thread.sleep(10);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
+		SwingUtilities.invokeLater(() -> {
+			JFrame frame = new JFrame();
+			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			frame.setResizable(false);
+			Breakout game = new Breakout();
+			frame.add(game);
+			frame.pack();
+			frame.setVisible(true);
+			game.requestFocusInWindow();
+			new Timer(10, event -> game.update()).start();
+		});
 	}
 
 	public void update() {
 
-		// ƒ{[ƒ‹‚ğˆÚ“®
+		// ãƒœãƒ¼ãƒ«ã‚’ç§»å‹•
 		ballCenter.x += dx;
 		ballCenter.y += dy;
 		ball.x += dx;
 		ball.y += dy;
 
-		// ƒ{[ƒ‹‚ª¶‰E‚Ì•Ç‚É“–‚½‚Á‚½‚Æ‚«‚Ì”½Ëˆ—
+		// ãƒœãƒ¼ãƒ«ãŒå·¦å³ã®å£ã«å½“ãŸã£ãŸã¨ãã®åå°„å‡¦ç†
 		if (ballCenter.x < BALL_RADIUS || ballCenter.x > SCREEN_WIDTH - BALL_RADIUS) {
 			dx = -dx;
 		}
 
-		// ƒ{[ƒ‹‚ªã‚Ì•Ç‚É“–‚½‚Á‚½‚Æ‚«‚Ì”½Ëˆ—
+		// ãƒœãƒ¼ãƒ«ãŒä¸Šã®å£ã«å½“ãŸã£ãŸã¨ãã®åå°„å‡¦ç†
 		if (ballCenter.y < BALL_RADIUS) {
 			dy = -dy;
 		}
 
-		// ƒ{[ƒ‹‚ª‰º‚Ì•Ç‚É“–‚½‚Á‚½‚Æ‚«‚Ìˆ—
+		// ãƒœãƒ¼ãƒ«ãŒä¸‹ã®å£ã«å½“ãŸã£ãŸã¨ãã®å‡¦ç†
 		if (ball.y > SCREEN_HEIGHT + BALL_RADIUS) {
-			// ƒQ[ƒ€‚ğI—¹‚·‚é
+			// ã‚²ãƒ¼ãƒ ã‚’çµ‚äº†ã™ã‚‹
 			System.exit(0);
 		}
-		// ƒ{[ƒ‹‚ªƒpƒhƒ‹‚É“–‚½‚Á‚½‚Æ‚«‚Ì”½Ëˆ—
-		if (ball.intersects(paddle)) {
+		// ãƒœãƒ¼ãƒ«ãŒãƒ‘ãƒ‰ãƒ«ã«å½“ãŸã£ãŸã¨ãã®åå°„å‡¦ç†
+		if (dy > 0 && ball.intersects(paddle)) {
+			ball.y = paddle.y - ball.height;
+			ballCenter.y = ball.y + BALL_RADIUS;
 			dy = -dy;
 		}
-		// ƒ{[ƒ‹‚ªƒuƒƒbƒN‚É“–‚½‚Á‚½‚Æ‚«‚Ì”½Ëˆ—
-		if (ball.intersects(block)) {
+		// ãƒœãƒ¼ãƒ«ãŒãƒ–ãƒ­ãƒƒã‚¯ã«å½“ãŸã£ãŸã¨ãã®åå°„å‡¦ç†
+		if (blockExistence && ball.intersects(block)) {
 			blockExistence = false;
 			dy = -dy;
 		}
 
-		// ‰æ–Ê‚ğXV
+		// ç”»é¢ã‚’æ›´æ–°
 		repaint();
 	}
 
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		// “®‚©‚·‚½‚ß‚ÉƒtƒH[ƒJƒX
-		requestFocus();
 
-		// ‰æ–Ê‚ğ”’‚Å“h‚è‚Â‚Ô‚·
+		// ç”»é¢ã‚’ç™½ã§å¡—ã‚Šã¤ã¶ã™
 		g.setColor(Color.WHITE);
 		g.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-		// ƒuƒƒbƒN‚ğ•`‰æ
+		// ãƒ–ãƒ­ãƒƒã‚¯ã‚’æç”»
 		g.setColor(Color.BLACK);
 		if (blockExistence) {
 			g.fillRect(block.x, block.y, block.width, block.height);
 		}
-		// ƒ{[ƒ‹‚ğ•`‰æ
+		// ãƒœãƒ¼ãƒ«ã‚’æç”»
 		g.fillOval(ball.x, ball.y, ball.width, ball.height);
 
-		// ƒpƒhƒ‹‚ğ•`‰æ
+		// ãƒ‘ãƒ‰ãƒ«ã‚’æç”»
 		g.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
-		// ƒfƒoƒbƒO—po—Í
-		System.out.println("----------------------------------------");
-		System.out.printf("block(x,y)=(%s,%s)\n", block.x, block.y);
-		System.out.printf("ball(x,y)=(%s,%s)\n", ball.x, ball.y);
 	}
 
 	@Override
 	public void keyPressed(KeyEvent e) {
 		int key = e.getKeyCode();
 
-		// ¶–îˆóƒL[‚ª‰Ÿ‚³‚ê‚½‚Æ‚«
+		// å·¦çŸ¢å°ã‚­ãƒ¼ãŒæŠ¼ã•ã‚ŒãŸã¨ã
 		if (key == KeyEvent.VK_LEFT) {
-			// –_‚ğ¶‚ÉˆÚ“®‚·‚é
+			// æ£’ã‚’å·¦ã«ç§»å‹•ã™ã‚‹
 			paddle.x = Math.max(0, paddle.x - 10);
 		}
-		// ‰E–îˆóƒL[‚ª‰Ÿ‚³‚ê‚½‚Æ‚«
+		// å³çŸ¢å°ã‚­ãƒ¼ãŒæŠ¼ã•ã‚ŒãŸã¨ã
 		if (key == KeyEvent.VK_RIGHT) {
-			// –_‚ğ‰E‚ÉˆÚ“®‚·‚é
+			// æ£’ã‚’å³ã«ç§»å‹•ã™ã‚‹
 			paddle.x = Math.min(SCREEN_WIDTH - PADDLE_WIDTH, paddle.x + 10);
 		}
 	}
 
-	// ƒL[‚ª—£‚³‚ê‚½‚Æ‚«‚Ìˆ—
+	// ã‚­ãƒ¼ãŒé›¢ã•ã‚ŒãŸã¨ãã®å‡¦ç†
 	@Override
 	public void keyReleased(KeyEvent e) {
 	}
 
-	// ƒL[‚ªƒ^ƒCƒv‚³‚ê‚½‚Æ‚«‚Ìˆ—
+	// ã‚­ãƒ¼ãŒã‚¿ã‚¤ãƒ—ã•ã‚ŒãŸã¨ãã®å‡¦ç†
 	@Override
 	public void keyTyped(KeyEvent e) {
 	}
